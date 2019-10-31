@@ -8,15 +8,29 @@ class Home extends StatefulWidget {
 class HomeState extends State<Home> with TickerProviderStateMixin {
   Animation<double> catAnimation;
   AnimationController catController;
+  Animation<double> boxAnimation;
+  AnimationController boxController;
 
   initState() {
     super.initState();
 
-    catController = AnimationController(
+    boxController = AnimationController(
       duration: Duration(seconds: 2),
       vsync: this,
     );
-    catAnimation = Tween(begin: 0.0, end: 100.0).animate(
+    boxAnimation = Tween(begin: 0.0, end: 3.14).animate(
+      CurvedAnimation(
+        parent: boxController,
+        curve: Curves.linear,
+      ),
+    );
+    boxController.forward();
+
+    catController = AnimationController(
+      duration: Duration(milliseconds: 200),
+      vsync: this,
+    );
+    catAnimation = Tween(begin: -35.0, end: -80.0).animate(
       CurvedAnimation(
         parent: catController,
         curve: Curves.easeIn,
@@ -40,9 +54,11 @@ class HomeState extends State<Home> with TickerProviderStateMixin {
       body: GestureDetector(
         child: Center(
           child: Stack(
+            overflow: Overflow.visible,
             children: [
-              buildBox(),
               buildCatAnimation(),
+              buildBox(),
+              buildLeftFlap(),
             ],
           ),
         ),
@@ -57,7 +73,7 @@ class HomeState extends State<Home> with TickerProviderStateMixin {
       builder: (context, child) {
         return Positioned(
           child: child,
-          bottom: catAnimation.value,
+          top: catAnimation.value,
           right: 0.0,
           left: 0.0,
         );
@@ -71,6 +87,27 @@ class HomeState extends State<Home> with TickerProviderStateMixin {
       height: 200.0,
       width: 200.0,
       color: Colors.brown,
+    );
+  }
+
+  Widget buildLeftFlap() {
+    return Positioned(
+      left: 3.0,
+      child: AnimatedBuilder(
+        animation: boxAnimation,
+        child: Container(
+          height: 10.0,
+          width: 125.0,
+          color: Colors.brown,
+        ),
+        builder: (context, child) {
+          return Transform.rotate(
+            child: child,
+            alignment: Alignment.topLeft,
+            angle: boxAnimation.value,
+          );
+        },
+      ),
     );
   }
 }
